@@ -23,6 +23,11 @@ async function run() {
     const db = client.db("banglaBazarDB");
     const productsCollection = db.collection("products");
     // GET ALL PRODUCTS
+    
+    app.get("/products", async (req, res) => {
+      const result = await productsCollection.find().toArray();
+      res.send(result);
+    });
     // ADD PRODUCT
     app.post("/products", async (req, res) => {
       const product = req.body;
