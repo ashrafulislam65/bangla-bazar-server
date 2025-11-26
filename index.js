@@ -22,6 +22,7 @@ async function run() {
     await client.connect();
     const db = client.db("banglaBazarDB");
     const productsCollection = db.collection("products");
+    const usersCollection = db.collection("users");
     // GET ALL PRODUCTS
 
     app.get("/products", async (req, res) => {
@@ -69,6 +70,37 @@ async function run() {
       const result = await productsCollection.deleteOne({ _id: new ObjectId(id) });
       res.send(result);
     });
+
+    // users api
+    // REGISTER USER
+    app.post("/users/register", async (req, res) => {
+      const user = req.body; // name, email, password
+      const existing = await usersCollection.findOne({ email: user.email });
+
+      if (existing) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+    // LOGIN USER
+    app.post("/users/login", async (req, res) => {
+      const { email, password } = req.body;
+
+      const user = await usersCollection.findOne({ email });
+
+      if (!user) {
+        return res.status(404).json({ message: "Email not found" });
+      }
+
+      if (user.password !== password) {
+        return res.status(401).json({ message: "Wrong password" });
+      }
+
+      res.send(user);
+    });
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
