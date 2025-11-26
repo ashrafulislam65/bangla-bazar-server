@@ -42,6 +42,27 @@ async function run() {
       const result = await productsCollection.insertOne(product);
       res.send(result);
     });
+    //update product
+    app.patch("/products/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const updateData = req.body; // fields to update
+
+        const result = await productsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: updateData }
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).json({ message: "Product not found" });
+        }
+
+        res.json({ message: "Product updated successfully" });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
     // DELETE PRODUCT
     app.delete("/products/:id", async (req, res) => {
       const id = req.params.id;
