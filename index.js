@@ -23,6 +23,7 @@ async function run() {
     const db = client.db("banglaBazarDB");
     const productsCollection = db.collection("products");
     const usersCollection = db.collection("users");
+    const purchasedCollection = db.collection("purchasedProducts");
     // GET ALL PRODUCTS
 
     app.get("/products", async (req, res) => {
@@ -100,6 +101,30 @@ async function run() {
 
       res.send(user);
     });
+    // purchased product api
+    // POST /purchased
+app.post("/purchased", async (req, res) => {
+  try {
+    const purchase = req.body; 
+    // expected fields: userId, productId, quantity, price
+
+    if (!purchase.userId || !purchase.productId) {
+      return res.status(400).json({ message: "userId and productId are required" });
+    }
+
+    
+
+    purchase.purchaseDate = new Date(); // auto add purchase date
+    const result = await purchasedCollection.insertOne(purchase);
+
+    res.status(201).json({ message: "Product purchased successfully", id: result.insertedId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+    
 
 
     // Send a ping to confirm a successful connection
