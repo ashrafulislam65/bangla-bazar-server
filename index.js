@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors');
 const port = process.env.PORT || 3000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fcejyck.mongodb.net/?appName=Cluster0`
@@ -23,11 +23,19 @@ async function run() {
     const db = client.db("banglaBazarDB");
     const productsCollection = db.collection("products");
     // GET ALL PRODUCTS
-    
+
     app.get("/products", async (req, res) => {
       const result = await productsCollection.find().toArray();
       res.send(result);
     });
+    // GET SINGLE PRODUCT BY ID
+    app.get("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await productsCollection.findOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
+
+
     // ADD PRODUCT
     app.post("/products", async (req, res) => {
       const product = req.body;
